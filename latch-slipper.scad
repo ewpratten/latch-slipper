@@ -1,5 +1,18 @@
+// This file defines a credit card sized door latch slipping tool.
+// Design by: Evan Pratten <evan@ewpratten.com>
+//
+// Notes:
+// - All units are in millimeters
+
 module poly3d(verts) {
   linear_extrude(height = 1) { polygon(verts); }
+}
+
+module unit_dual_tris() {
+  union() {
+    poly3d([ [ 0, 0.125 ], [ 0, 1 ], [ 0.875, 1 ] ]);
+    poly3d([ [ 0.125, 0 ], [ 1, 0 ], [ 1, 0.875 ] ]);
+  }
 }
 
 difference() {
@@ -31,13 +44,47 @@ difference() {
   }
 
   // Keyring hole
-  translate([ 7, 47, -0.5 ]) { cylinder(h = 2, r = 3); }
+  translate([ 2.5, 35, 0 ]) {
+    // cylinder(h = 2, r = 3);
+    cube([ 7.5, 15, 1 ]);
+  }
 
   // Material removal shapes
-  // translate([ 0, 0, 0.5 ]) {
-  //   union() {
-  //     polygon([ [ 10, 10 ], [ 10, 20 ], [ 40, 20 ] ]);
-  //     polygon([ [ 10, 5 ], [ 30, 5 ], [ 30, 12.5] ]);
-  //   }
-  // }
+  union() {
+    poly3d([
+      [ 0, 0 ],
+      [ 60, 0 ],
+      [ 60, 30 ],
+      [ 0, 30 ],
+    ]);
+
+    // Triangle mesh cutouts
+    translate([ 12.5, 35, 0 ]) {
+      scale([ 15, 15, 1 ]) {
+        // Left triangle
+        unit_dual_tris();
+
+        // Middle triangle
+        translate([ 1.25, 0, 0 ]) {
+          translate([ 1, 0, 0 ]) {
+            rotate(a = 90, v = [ 0, 0, 1 ]) { unit_dual_tris(); }
+          }
+        }
+
+        // Right triangle
+        translate([ 2.5, 0, 0 ]) { unit_dual_tris(); }
+      }
+    }
+
+    // Top right structural triangles
+    translate([ 67.5, 35, 0 ]) {
+      scale([ 15, 15, 1 ]) {
+        union() {
+          poly3d([ [ 0, 0.5 ], [ 1, 1 ], [ 1, 0 ] ]);
+          poly3d([ [ 0, 0 ], [ 0, 0.25 ], [ 0.6, 0 ] ]);
+          poly3d([ [ 0, 1 ], [ 0, 0.75 ], [ 0.6, 1 ] ]);
+        }
+      }
+    }
+  }
 }
